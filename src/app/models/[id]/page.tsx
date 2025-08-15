@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { gql, useQuery } from "@apollo/client";
 import { useState } from "react";
+import ModelSpecs from "@/components/ModelSpecs";
+import MusiciansGrid from "@/components/MusiciansGrid";
 
-/** ── GQL ─────────────────────────────────────────────────────────── */
+/* ── GQL: kërkojmë vetëm fusha që ekzistojnë ─────────────────────── */
 const GET_MODEL = gql`
   query GetModel($brandId: ID!, $modelId: ID!) {
     findUniqueModel(brandId: $brandId, modelId: $modelId) {
@@ -15,11 +17,12 @@ const GET_MODEL = gql`
       image
       price
       description
+      specs { __typename }     # placeholder, backend s’jep ende fusha të tjera
+      musicians { name }       # backend s’jep image/url/instrument
     }
   }
 `;
 
-/** ── Helpers ─────────────────────────────────────────────────────── */
 type Tab = "specs" | "musicians";
 
 const fmt = (n?: number | null) =>
@@ -27,14 +30,10 @@ const fmt = (n?: number | null) =>
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)
     : "";
 
-const parseModelId = (raw?: string | string[]) =>
-  raw ? String(raw).split("-")[0] : "";
-
-/** ── Page ────────────────────────────────────────────────────────── */
 export default function ModelDetailsPage() {
   const { id: raw } = useParams<{ id: string }>();
-  const brandId = useSearchParams().get("brand") ?? "";
-  const modelId = parseModelId(raw);
+  const brandId = useSearchParams().get("brand") || "";
+  const modelId = (raw ?? "").split("-")[0]; // p.sh. "f1-stratocaster" -> "f1"
 
   const { data, loading, error } = useQuery(GET_MODEL, {
     variables: { brandId, modelId },
@@ -57,6 +56,7 @@ export default function ModelDetailsPage() {
 
       {!loading && !error && m && (
         <>
+          {/* Header */}
           <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-4xl font-bold">{m.name}</h1>
@@ -69,13 +69,19 @@ export default function ModelDetailsPage() {
 
             <div className="rounded-2xl bg-gray-50 p-6 flex items-center justify-center">
               {m.image ? (
-                <img src={m.image} alt={m.name} className="max-h-80 object-contain" loading="lazy" />
+                <img
+                    src={m.image}
+                    alt={m.name}
+                    className="max-h-80 object-contain"
+                    loading="lazy"
+                />
               ) : (
                 <span className="text-gray-400">No image</span>
               )}
             </div>
           </div>
 
+          {/* Tabs */}
           <div className="mt-10">
             <div className="flex gap-2 border-b">
               <button
@@ -96,10 +102,15 @@ export default function ModelDetailsPage() {
               </button>
             </div>
 
-            {tab === "specs" && <div className="mt-6 text-gray-300">Specs will appear here…</div>}
-            {tab === "musicians" && (
-              <div className="mt-6 text-gray-300">Musicians (2 by 2) will appear here…</div>
-            )}
+            <div className="mt-6 text-gray-300">
+              {/* Frontend bën MERGE me fallback lokal për të afruar Figma-n */}
+              {tab === "specs" && (
+                <ModelSpecs brandId={brandId} modelId={modelId} specsGql={m.specs} />
+              )}
+              {tab === "musicians" && (
+                <MusiciansGrid brandId={brandId} modelId={modelId} musiciansGql={m.musicians} />
+              )}
+            </div>
           </div>
         </>
       )}
