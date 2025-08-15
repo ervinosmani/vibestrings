@@ -7,7 +7,6 @@ import { useState } from "react";
 import ModelSpecs from "@/components/ModelSpecs";
 import MusiciansGrid from "@/components/MusiciansGrid";
 
-/* ── GQL: kërkojmë vetëm fusha që ekzistojnë ─────────────────────── */
 const GET_MODEL = gql`
   query GetModel($brandId: ID!, $modelId: ID!) {
     findUniqueModel(brandId: $brandId, modelId: $modelId) {
@@ -17,12 +16,25 @@ const GET_MODEL = gql`
       image
       price
       description
-      specs { __typename }     # placeholder, backend s’jep ende fusha të tjera
-      musicians { name }       # backend s’jep image/url/instrument
+      specs {
+        bodyWood
+        neckWood
+        fingerboardWood
+        bridge
+        pickups
+        scaleLength
+        tuners
+      }
+      musicians {
+        name
+        musicianImage
+        bands
+      }
     }
   }
 `;
 
+/* ── Helpers ─────────────────────────────────────────────────────── */
 type Tab = "specs" | "musicians";
 
 const fmt = (n?: number | null) =>
@@ -30,6 +42,7 @@ const fmt = (n?: number | null) =>
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)
     : "";
 
+/* ── Page ────────────────────────────────────────────────────────── */
 export default function ModelDetailsPage() {
   const { id: raw } = useParams<{ id: string }>();
   const brandId = useSearchParams().get("brand") || "";
@@ -38,6 +51,7 @@ export default function ModelDetailsPage() {
   const { data, loading, error } = useQuery(GET_MODEL, {
     variables: { brandId, modelId },
     skip: !brandId || !modelId,
+    fetchPolicy: "cache-first",
   });
 
   const m = data?.findUniqueModel;
@@ -70,10 +84,10 @@ export default function ModelDetailsPage() {
             <div className="rounded-2xl bg-gray-50 p-6 flex items-center justify-center">
               {m.image ? (
                 <img
-                    src={m.image}
-                    alt={m.name}
-                    className="max-h-80 object-contain"
-                    loading="lazy"
+                  src={m.image}
+                  alt={m.name}
+                  className="max-h-80 object-contain"
+                  loading="lazy"
                 />
               ) : (
                 <span className="text-gray-400">No image</span>
@@ -103,13 +117,10 @@ export default function ModelDetailsPage() {
             </div>
 
             <div className="mt-6 text-gray-300">
-              {/* Frontend bën MERGE me fallback lokal për të afruar Figma-n */}
-              {tab === "specs" && (
-                <ModelSpecs brandId={brandId} modelId={modelId} specsGql={m.specs} />
-              )}
-              {tab === "musicians" && (
-                <MusiciansGrid brandId={brandId} modelId={modelId} musiciansGql={m.musicians} />
-              )}
+              {/* Specs si objekt -> ModelSpecs e normalizon në listë */}
+              {tab === "specs" && <ModelSpecs specs={m.specs} />}
+              {/* Musicians me emra (imazhet i shtojmë në hapin tjetër) */}
+              {tab === "musicians" && <MusiciansGrid musicians={m.musicians} />}
             </div>
           </div>
         </>

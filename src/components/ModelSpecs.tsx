@@ -1,18 +1,32 @@
-"use client";
+type Specs = {
+  bodyWood?: string | null;
+  neckWood?: string | null;
+  fingerboardWood?: string | null;
+  bridge?: string | null;
+  pickups?: string | null;
+  scaleLength?: string | null;
+  tuners?: string | null;
+} | null | undefined;
 
-import { FALLBACK_SPECS, FallbackSpec } from "@/lib/model-fallback";
-
-type Props = {
-  brandId: string;
-  modelId: string;
-  specsGql: any; // nga serveri (s’ka fusha tani; vetëm __typename)
+const LABELS: Record<string, string> = {
+  bodyWood: "Body wood",
+  neckWood: "Neck wood",
+  fingerboardWood: "Fingerboard",
+  bridge: "Bridge",
+  pickups: "Pickups",
+  scaleLength: "Scale length",
+  tuners: "Tuners",
 };
 
-export default function ModelSpecs({ brandId, modelId, specsGql }: Props) {
-  // Shkalla 1: nëse nesër backend-i ekspozon diçka si listë, mund ta lexojmë këtu.
-  // Aktualisht s’ka — prandaj përdorim fallback-in lokal.
-  const key = `${brandId}:${modelId}` as const;
-  const items: FallbackSpec[] = FALLBACK_SPECS[key] ?? [];
+export default function ModelSpecs({ specs }: { specs: Specs }) {
+  if (!specs) return <p className="text-gray-400">Specs will appear here…</p>;
+
+  const items = Object.entries(specs)
+    .filter(([, v]) => v != null && String(v).trim() !== "")
+    .map(([k, v]) => ({
+      label: LABELS[k] ?? k,
+      value: String(v),
+    }));
 
   if (items.length === 0) {
     return <p className="text-gray-400">Specs will appear here…</p>;
