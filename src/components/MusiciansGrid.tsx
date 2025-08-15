@@ -1,23 +1,20 @@
 type Musician = {
   name?: string | null;
-  musicianImage?: string | null;
   bands?: string[] | null;
+  musicianImage?: string | null;
 } | null;
 
-function normalize(musicians?: Musician[] | null) {
-  if (!musicians) return [];
-  return musicians
-    .filter(Boolean)
-    .map(m => ({
-      name: m?.name ?? "",
-      image: m?.musicianImage ?? "",
-      bands: (m?.bands ?? []).filter(Boolean).join(", "),
-    }))
-    .filter(m => m.name.trim() !== "");
-}
-
 export default function MusiciansGrid({ musicians }: { musicians?: Musician[] | null }) {
-  const items = normalize(musicians);
+  const items =
+    (musicians ?? [])
+      .filter(Boolean)
+      .map((m) => ({
+        name: m?.name ?? "",
+        bands: (m?.bands ?? []).filter(Boolean) as string[],
+        image: m?.musicianImage ?? undefined,
+      }))
+      .filter((x) => x.name.trim().length > 0) || [];
+
   if (items.length === 0) {
     return <p className="text-gray-400">Musicians (2 by 2) will appear here…</p>;
   }
@@ -29,11 +26,15 @@ export default function MusiciansGrid({ musicians }: { musicians?: Musician[] | 
           {m.image ? (
             <img src={m.image} alt={m.name} className="h-16 w-16 rounded-full object-cover" />
           ) : (
-            <div className="h-16 w-16 rounded-full bg-gray-200" />
+            <div className="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+              {m.name.charAt(0).toUpperCase()}
+            </div>
           )}
           <div>
-            <p className="font-semibold">{m.name}</p>
-            {m.bands && <p className="text-sm text-gray-500">{m.bands}</p>}
+            <p className="font-semibold text-white">{m.name}</p>
+            {m.bands.length > 0 && (
+              <p className="text-sm text-gray-400">{m.bands.join(", ")}</p>
+            )}
           </div>
         </div>
       ))}

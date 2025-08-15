@@ -7,6 +7,7 @@ import { useState } from "react";
 import ModelSpecs from "@/components/ModelSpecs";
 import MusiciansGrid from "@/components/MusiciansGrid";
 
+/** ── GraphQL ───────────────────────────────────────────────────── */
 const GET_MODEL = gql`
   query GetModel($brandId: ID!, $modelId: ID!) {
     findUniqueModel(brandId: $brandId, modelId: $modelId) {
@@ -27,14 +28,14 @@ const GET_MODEL = gql`
       }
       musicians {
         name
-        musicianImage
         bands
+        musicianImage
       }
     }
   }
 `;
 
-/* ── Helpers ─────────────────────────────────────────────────────── */
+/** ── Helpers ───────────────────────────────────────────────────── */
 type Tab = "specs" | "musicians";
 
 const fmt = (n?: number | null) =>
@@ -42,16 +43,15 @@ const fmt = (n?: number | null) =>
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)
     : "";
 
-/* ── Page ────────────────────────────────────────────────────────── */
+/** ── Page ──────────────────────────────────────────────────────── */
 export default function ModelDetailsPage() {
   const { id: raw } = useParams<{ id: string }>();
   const brandId = useSearchParams().get("brand") || "";
-  const modelId = (raw ?? "").split("-")[0]; // p.sh. "f1-stratocaster" -> "f1"
+  const modelId = (raw ?? "").split("-")[0];
 
   const { data, loading, error } = useQuery(GET_MODEL, {
     variables: { brandId, modelId },
     skip: !brandId || !modelId,
-    fetchPolicy: "cache-first",
   });
 
   const m = data?.findUniqueModel;
@@ -83,12 +83,7 @@ export default function ModelDetailsPage() {
 
             <div className="rounded-2xl bg-gray-50 p-6 flex items-center justify-center">
               {m.image ? (
-                <img
-                  src={m.image}
-                  alt={m.name}
-                  className="max-h-80 object-contain"
-                  loading="lazy"
-                />
+                <img src={m.image} alt={m.name} className="max-h-80 object-contain" loading="lazy" />
               ) : (
                 <span className="text-gray-400">No image</span>
               )}
@@ -117,9 +112,7 @@ export default function ModelDetailsPage() {
             </div>
 
             <div className="mt-6 text-gray-300">
-              {/* Specs si objekt -> ModelSpecs e normalizon në listë */}
               {tab === "specs" && <ModelSpecs specs={m.specs} />}
-              {/* Musicians me emra (imazhet i shtojmë në hapin tjetër) */}
               {tab === "musicians" && <MusiciansGrid musicians={m.musicians} />}
             </div>
           </div>
