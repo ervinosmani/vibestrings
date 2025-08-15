@@ -1,0 +1,25 @@
+{
+  "nav": { "backToHome": "Back To Home", "backToList": "Back To List" },
+  "home": {
+    "heroTitle": "Browse top quality Guitars online",
+    "heroSubtitle": "Explore 50k+ latest collections of branded guitars online with VibeStrings.",
+    "bestBrands": "Featuring the Best Brands",
+    "whyTitle": "Why try VibeStrings?"
+  },
+  "brand": {
+    "title": "Play like a Rock star",
+    "selection": "Check out the Selection",
+    "filterByType": "Filter by type",
+    "searchByName": "Search by name",
+    "showingResults": "Showing {{count}} results from {{total}}"
+  },
+  "details": { "specification": "Specification", "whoPlaysIt": "Who plays it?" },
+  "footer": {
+    "pages": "PAGES", "store": "Store", "collections": "Collections", "support": "Support",
+    "product": "PRODUCT", "terms": "Terms", "privacy": "Privacy Policy", "copyright": "Copyright",
+    "followUs": "FOLLOW US", "email": "Enquiry@VibeStrings.com", "location": "San Francisco",
+    "copyrightLine": "© 2022 Copyright. VibeStrings"
+  },
+  "pagination": { "prev": "Prev", "next": "Next" },
+  "types": { "bass": "Bass", "acoustic": "Acoustic", "electric": "Electric" }
+}

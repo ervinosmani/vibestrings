@@ -1,0 +1,25 @@
+{
+  "nav": { "backToHome": "Kthehu te Ballina", "backToList": "Kthehu te Lista" },
+  "home": {
+    "heroTitle": "Shfleto kitara të cilësisë së lartë online",
+    "heroSubtitle": "Eksploro mbi 50k koleksione të reja të kitarave të markave me VibeStrings.",
+    "bestBrands": "Markat më të mira",
+    "whyTitle": "Pse ta provosh VibeStrings?"
+  },
+  "brand": {
+    "title": "Luaj si një Rock star",
+    "selection": "Shiko Përzgjedhjen",
+    "filterByType": "Filtro sipas tipit",
+    "searchByName": "Kërko sipas emrit",
+    "showingResults": "Duke shfaqur {{count}} rezultate nga {{total}}"
+  },
+  "details": { "specification": "Specifikimet", "whoPlaysIt": "Kush e përdor?" },
+  "footer": {
+    "pages": "FAQET", "store": "Dyqani", "collections": "Koleksionet", "support": "Suporti",
+    "product": "PRODUKTI", "terms": "Kushtet", "privacy": "Privatësia", "copyright": "Autori",
+    "followUs": "NA NDIQNI", "email": "Enquiry@VibeStrings.com", "location": "San Francisko",
+    "copyrightLine": "© 2022 Të drejtat e rezervuara. VibeStrings"
+  },
+  "pagination": { "prev": "Mbrapa", "next": "Para" },
+  "types": { "bass": "Bas", "acoustic": "Akustike", "electric": "Elektrike" }
+}
