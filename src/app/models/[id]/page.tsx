@@ -2,40 +2,14 @@
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { gql, useQuery } from "@apollo/client";
 import { useState } from "react";
 import ModelSpecs from "@/components/ModelSpecs";
 import MusiciansGrid from "@/components/MusiciansGrid";
+import { notFound } from "next/navigation";
 
-/** ── GraphQL ───────────────────────────────────────────────────── */
-const GET_MODEL = gql`
-  query GetModel($brandId: ID!, $modelId: ID!) {
-    findUniqueModel(brandId: $brandId, modelId: $modelId) {
-      id
-      name
-      type
-      image
-      price
-      description
-      specs {
-        bodyWood
-        neckWood
-        fingerboardWood
-        bridge
-        pickups
-        scaleLength
-        tuners
-      }
-      musicians {
-        name
-        bands
-        musicianImage
-      }
-    }
-  }
-`;
+// ⬇️ Importo hook-un e gjeneruar nga codegen
+import { useGetModelQuery } from "@/gql/hooks";
 
-/** ── Helpers ───────────────────────────────────────────────────── */
 type Tab = "specs" | "musicians";
 
 const fmt = (n?: number | null) =>
@@ -43,13 +17,12 @@ const fmt = (n?: number | null) =>
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)
     : "";
 
-/** ── Page ──────────────────────────────────────────────────────── */
 export default function ModelDetailsPage() {
   const { id: raw } = useParams<{ id: string }>();
   const brandId = useSearchParams().get("brand") || "";
-  const modelId = (raw ?? "").split("-")[0];
+  const modelId = (raw ?? "").split("-")[0]; // p.sh. "f1-stratocaster" -> "f1"
 
-  const { data, loading, error } = useQuery(GET_MODEL, {
+  const { data, loading, error } = useGetModelQuery({
     variables: { brandId, modelId },
     skip: !brandId || !modelId,
   });
@@ -57,6 +30,8 @@ export default function ModelDetailsPage() {
   const m = data?.findUniqueModel;
   const [tab, setTab] = useState<Tab>("specs");
   const backHref = brandId ? `/brands/${brandId}` : "/brands";
+
+  if (!loading && !error && !m) notFound();
 
   return (
     <section className="container mx-auto px-4 py-12">
@@ -112,8 +87,9 @@ export default function ModelDetailsPage() {
             </div>
 
             <div className="mt-6 text-gray-300">
-              {tab === "specs" && <ModelSpecs specs={m.specs} />}
-              {tab === "musicians" && <MusiciansGrid musicians={m.musicians} />}
+              {/* Nëse specs është objekt (jo listë), komponenti jonë e normalizon vetë */}
+              {tab === "specs" && <ModelSpecs specs={(m as any).specs} />}
+              {tab === "musicians" && <MusiciansGrid musicians={(m as any).musicians} />}
             </div>
           </div>
         </>

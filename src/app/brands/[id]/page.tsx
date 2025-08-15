@@ -1,25 +1,13 @@
 "use client";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { gql, useQuery } from "@apollo/client";
-import { useI18n } from "@/context/i18n";
 import { useEffect, useMemo, useState } from "react";
 
-const GET_BRAND_WITH_MODELS = gql`
-  query GetBrandWithModels($id: ID!) {
-    findUniqueBrand(id: $id) {
-      id
-      name
-      models {
-        id
-        name
-        type
-        image
-        price
-      }
-    }
-  }
-`;
+import { useI18n } from "@/context/i18n";
+
+// ⬇️ Hook i gjeneruar nga Codegen
+import { useGetBrandWithModelsQuery } from "@/gql/hooks";
 
 const fmt = (n?: number | null) =>
   typeof n === "number"
@@ -33,7 +21,7 @@ export default function BrandModelsPage() {
   const params = useParams<{ id: string }>();
   const brandId = (params?.id as string) || "";
 
-  const { data, loading, error } = useQuery(GET_BRAND_WITH_MODELS, {
+  const { data, loading, error } = useGetBrandWithModelsQuery({
     variables: { id: brandId },
     skip: !brandId,
   });
@@ -46,15 +34,15 @@ export default function BrandModelsPage() {
   const [type, setType] = useState<"ALL" | string>("ALL");
 
   const typeOptions = useMemo(
-    () => Array.from(new Set(models.map((m: any) => m.type).filter(Boolean))),
+    () => Array.from(new Set(models.map((m: any) => m?.type).filter(Boolean))),
     [models]
   );
 
   const filtered = useMemo(() => {
     const qn = q.trim().toLowerCase();
     return models.filter((m: any) => {
-      const okQ = qn ? m.name.toLowerCase().includes(qn) : true;
-      const okT = type === "ALL" ? true : m.type === type;
+      const okQ = qn ? m?.name?.toLowerCase().includes(qn) : true;
+      const okT = type === "ALL" ? true : m?.type === type;
       return okQ && okT;
     });
   }, [models, q, type]);
@@ -62,7 +50,6 @@ export default function BrandModelsPage() {
   // --- Pagination state (client-side)
   const [page, setPage] = useState(1);
   useEffect(() => {
-    // kur ndryshon filtri/kërkimi, kthehu në faqen 1
     setPage(1);
   }, [q, type]);
 
@@ -111,7 +98,10 @@ export default function BrandModelsPage() {
         />
       </div>
 
-      {/* Result count */}
+      {/* Result count / states */}
+      {loading && <p className="mt-6">Loading models…</p>}
+      {error && <p className="mt-6 text-red-600">Error: {error.message}</p>}
+
       {!loading && !error && (
         <p className="mt-4 text-sm text-gray-500">
           {t("brand.showingResults")
@@ -119,9 +109,6 @@ export default function BrandModelsPage() {
             .replace("{{total}}", String(total))}
         </p>
       )}
-
-      {loading && <p className="mt-6">Loading models…</p>}
-      {error && <p className="mt-6 text-red-600">Error: {error.message}</p>}
 
       {!loading && !error && (
         <>
@@ -131,7 +118,7 @@ export default function BrandModelsPage() {
                 key={m.id}
                 href={`/models/${m.id}-${toSlug(m.name)}?brand=${brandId}`}
                 className="group rounded-2xl border p-4 hover:shadow transition"
-                >
+              >
                 <div className="aspect-[4/3] rounded-xl bg-gray-50 overflow-hidden flex items-center justify-center">
                   {m.image ? (
                     <img

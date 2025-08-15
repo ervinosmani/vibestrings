@@ -1,0 +1,28 @@
+query GetBrandWithModels($id: ID!) {
+  findUniqueBrand(id: $id) {
+    id
+    name
+    models {
+      id
+      name
+      type
+      image
+      price
+      description
+      specs {
+        bodyWood
+        neckWood
+        fingerboardWood
+        bridge
+        pickups
+        scaleLength
+        tuners
+      }
+      musicians {
+        name
+        bands
+        musicianImage
+      }
+    }
+  }
+}
