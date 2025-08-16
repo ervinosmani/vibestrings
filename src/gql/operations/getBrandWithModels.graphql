@@ -8,21 +8,6 @@ query GetBrandWithModels($id: ID!) {
       type
       image
       price
-      description
-      specs {
-        bodyWood
-        neckWood
-        fingerboardWood
-        bridge
-        pickups
-        scaleLength
-        tuners
-      }
-      musicians {
-        name
-        bands
-        musicianImage
-      }
     }
   }
 }

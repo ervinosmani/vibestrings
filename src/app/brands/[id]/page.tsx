@@ -6,8 +6,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useI18n } from "@/context/i18n";
 
-// ⬇️ Hook i gjeneruar nga Codegen
-import { useGetBrandWithModelsQuery } from "@/gql/hooks";
+// Hook i gjeneruar nga Codegen
+import { useGetBrandWithModelsQuery } from "@/gql";
+console.log("HOOK:", useGetBrandWithModelsQuery);
 
 const fmt = (n?: number | null) =>
   typeof n === "number"

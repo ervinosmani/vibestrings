@@ -1,49 +1,50 @@
-type Specs = {
-  bodyWood?: string | null;
-  neckWood?: string | null;
-  fingerboardWood?: string | null;
-  bridge?: string | null;
-  pickups?: string | null;
-  scaleLength?: string | null;
-  tuners?: string | null;
-} | null | undefined;
+import Card from "@/components/ui/Card";
 
-const LABELS: Record<keyof NonNullable<Specs>, string> = {
-  bodyWood: "BODY WOOD",
-  neckWood: "NECK WOOD",
-  fingerboardWood: "FINGERBOARD",
-  bridge: "BRIDGE",
-  pickups: "PICKUPS",
-  scaleLength: "SCALE LENGTH",
-  tuners: "TUNERS",
-};
+type SpecItem = { label?: string; key?: string; name?: string; value?: string } | string;
+type Props = { specs: any };
 
-const ORDER: (keyof NonNullable<Specs>)[] = [
-  "bodyWood",
-  "neckWood",
-  "fingerboardWood",
-  "bridge",
-  "pickups",
-  "scaleLength",
-  "tuners",
-];
+function normalize(specs: any): Array<{ label: string; value: string }> {
+  if (!specs) return [];
 
-export default function ModelSpecs({ specs }: { specs: Specs }) {
-  if (!specs) return <p className="text-gray-400">Specs will appear here…</p>;
+  // 1) Array objektesh / string-ësh
+  if (Array.isArray(specs)) {
+    return specs
+      .map((it: SpecItem) => {
+        if (typeof it === "string") {
+          const [label = "", ...rest] = it.split(":");
+          return { label: label.trim(), value: rest.join(":").trim() };
+        }
+        const label = (it as any).label ?? (it as any).key ?? (it as any).name ?? "";
+        const value = (it as any).value ?? "";
+        return { label: String(label), value: String(value) };
+      })
+      .filter((x) => x.label && !x.label.startsWith("__")); // hiq __typename nëse bie nga API
+  }
 
-  const items = ORDER
-    .map((k) => ({ key: k, label: LABELS[k], value: (specs as any)[k] as string | null }))
-    .filter((it) => it.value && String(it.value).trim().length > 0);
+  // 2) Objekt { Body: "...", Neck: "..." }
+  if (typeof specs === "object") {
+    return Object.entries(specs)
+      .map(([label, value]) => ({ label, value: String(value ?? "") }))
+      .filter((x) => x.label && !x.label.startsWith("__"));
+  }
 
-  if (items.length === 0) return <p className="text-gray-400">Specs will appear here…</p>;
+  return [];
+}
+
+export default function ModelSpecs({ specs }: Props) {
+  const items = normalize(specs);
+
+  if (items.length === 0) {
+    return <p className="text-gray-400">Specs will appear here…</p>;
+  }
 
   return (
     <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {items.map((s) => (
-        <div key={s.key} className="rounded-xl border p-4">
-          <dt className="text-xs uppercase tracking-wide text-gray-400">{s.label}</dt>
-          <dd className="mt-1 font-medium text-white">{s.value}</dd>
-        </div>
+      {items.map((s, i) => (
+        <Card key={i} className="bg-white/[0.03]">
+          <dt className="text-[10px] uppercase tracking-[0.12em] text-gray-400">{s.label}</dt>
+          <dd className="mt-1 font-medium leading-relaxed">{s.value}</dd>
+        </Card>
       ))}
     </dl>
   );

@@ -17,8 +17,8 @@ query GetModel($brandId: ID!, $modelId: ID!) {
     }
     musicians {
       name
-      bands
       musicianImage
+      bands
     }
   }
 }
